@@ -17,15 +17,35 @@ from pygame.locals import (
 )
 
 # Define constraints for the screen width and height
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 1000
+SCREEN_HEIGHT = 800
+
+# Define the height of the sand
+SAND_HEIGHT = 60
+
+# Define the height of the sky
+SKY_HEIGHT = 100
+
 
 # Define a Player object by extending pygame.sprite.Sprite
 # The surface drawn on the screen is now an attribute of 'player'
+class Sand:
+    def __init__(self):
+        self.surf = pygame.Surface((SCREEN_WIDTH, SAND_HEIGHT))
+        self.surf.fill("#b59438")
+        self.rect = self.surf.get_rect(bottom=SCREEN_HEIGHT)
+
+class Sky:
+    def __init__(self):
+        self.surf = pygame.Surface((SCREEN_WIDTH, SKY_HEIGHT))
+        self.surf.fill("#7aa7eb")
+        self.rect = self.surf.get_rect()
+
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
-        self.surf = pygame.Surface((20,10))
+        self.surf = pygame.Surface((40,10))
         self.surf.fill((0, 0, 0))
         self.rect = self.surf.get_rect()
 
@@ -45,10 +65,10 @@ class Player(pygame.sprite.Sprite):
             self.rect.left = 0
         if self.rect.right > SCREEN_WIDTH:
             self.rect.right = SCREEN_WIDTH    
-        if self.rect.top <= 0:
-            self.rect.top = 0
-        if self.rect.bottom >= SCREEN_HEIGHT:
-            self.rect.bottom = SCREEN_HEIGHT
+        if self.rect.top <= 95:
+            self.rect.top = 95
+        if self.rect.bottom >= SCREEN_HEIGHT - 60:
+            self.rect.bottom = SCREEN_HEIGHT - 60
 
 # Define the torpedo object by extending pygame.sprite.Sprite
 # The surface you draw on the screen is now an attribute of 'torpedo'
@@ -75,7 +95,7 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.surf.get_rect(
             center = (
                 random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100),
-                random.randint(0, SCREEN_HEIGHT)
+                random.randint(100, SCREEN_HEIGHT-60)
             )
         )
         self.speed = random.randint(5, 20)
@@ -97,14 +117,10 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 ADDENEMY = pygame.USEREVENT + 1
 pygame.time.set_timer(ADDENEMY, 500)
 
-
-# # Create a torpedo. No time because its created when player presses space bar
-# ADDTORPEDO = pygame.USEREVENT + 2
-# # pygame.time.set_timer(ADDTORPEDO, 1000)
-
-
-# Instantiate the player
+# Instantiate the player, sky, and sand
 player = Player()
+sky = Sky()
+sand = Sand()
 
 # Create groups to hold enemy sprites and all sprites
 # - enemies is used for collision detection and position updates
@@ -146,8 +162,6 @@ while running:
             new_enemy = Enemy()
             enemies.add(new_enemy)
             all_sprites.add(new_enemy)
-    
-            
         
 
     # Get the set of keys pressed and check for user input
@@ -161,7 +175,11 @@ while running:
     torpedos.update()
 
     # Fill the screen with color
-    screen.fill((255,255,255))
+    screen.fill("#0f3573")
+
+    # Draw sky and sand
+    screen.blit(sky.surf, sky.rect)
+    screen.blit(sand.surf, sand.rect)
 
     # Draw all the sprites
     for sprite in all_sprites:
@@ -172,6 +190,15 @@ while running:
         # If so, remove the player and stop the game loop
         player.kill()
         running = False
+
+    # Check if a torpedo collides with an enemy. Groupcollide() is used for collisions between sprite groups
+    collisions = pygame.sprite.groupcollide(torpedos, enemies, True, True)
+
+    # If there are collisions, remove the torpedo and enemy
+    for torpedo, enemy in collisions.items():
+        torpedo.kill()
+        for e in enemy:
+            e.kill()
 
     # Update the display
     pygame.display.flip()
