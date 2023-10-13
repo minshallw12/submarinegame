@@ -50,13 +50,41 @@ class Player(pygame.sprite.Sprite):
         if self.rect.bottom >= SCREEN_HEIGHT:
             self.rect.bottom = SCREEN_HEIGHT
 
+# Define the torpedo object by extending pygame.sprite.Sprite
+# The surface you draw on the screen is now an attribute of 'torpedo'
+class Torpedo(pygame.sprite.Sprite):
+    def __init__(self, initial_position):
+        super(Torpedo, self).__init__()
+        self.surf = pygame.Surface((20,10))
+        self.surf.fill((50, 10, 200))
+        self.rect = self.surf.get_rect(center = initial_position)
+        self.speed = 10
+    
+    def update(self):
+        self.rect.move_ip(self.speed, 0)
+        if self.rect.left > SCREEN_WIDTH:
+            self.kill()
 
 # Define the enemy object by extending pygame.sprite.Sprite
 # The surface you draw on the screen is now an attribute of 'enemy'
-# class Enemy(pygame.sprite.Sprite):
-#     def __init__(self):
-#         super(Enemy, self).__init__()
-#         self.surf = pygame.Surface((20,10))
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self):
+        super(Enemy, self).__init__()
+        self.surf = pygame.Surface((20,10))
+        self.surf.fill((0, 0, 0))
+        self.rect = self.surf.get_rect(
+            center = (
+                random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100),
+                random.randint(0, SCREEN_HEIGHT)
+            )
+        )
+        self.speed = random.randint(5, 20)
+    
+    def update(self):
+        self.rect.move_ip(-self.speed, 0)
+        if self.rect.right < 0:
+            self.kill()
+
 
 # Initialize pygame
 pygame.init()
@@ -65,8 +93,26 @@ pygame.init()
 # The size is determined by the constant SCREEN_WIDTH and SCREEN_HEIGHT
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+# Create a custom event for adding a new enemy
+ADDENEMY = pygame.USEREVENT + 1
+pygame.time.set_timer(ADDENEMY, 500)
+
+
+# # Create a torpedo. No time because its created when player presses space bar
+# ADDTORPEDO = pygame.USEREVENT + 2
+# # pygame.time.set_timer(ADDTORPEDO, 1000)
+
+
 # Instantiate the player
 player = Player()
+
+# Create groups to hold enemy sprites and all sprites
+# - enemies is used for collision detection and position updates
+# - all_sprites is used for rendering
+enemies = pygame.sprite.Group()
+torpedos = pygame.sprite.Group()
+all_sprites = pygame.sprite.Group()
+all_sprites.add(player)
 
 #Variable to keep main loop running
 running = True
@@ -83,10 +129,26 @@ while running:
             # Was it the Escape key? If so, stop the game loop
             if event.key == K_ESCAPE:
                 running = False
+            # Was it the Space Bar? If so, create a torpedo event
+            elif event.key == K_SPACE:
+                ADDTORPEDO = pygame.USEREVENT + 2
+                new_torpedo = Torpedo(player.rect.center)
+                torpedos.add(new_torpedo)
+                all_sprites.add(new_torpedo)
+
+        # Did the user click the window close button?
+        elif event.type == QUIT:
+            running = False
+
+        # Add a new enemey to game
+        elif event.type == ADDENEMY:
+            # Create a new enemy and add it to sprite group
+            new_enemy = Enemy()
+            enemies.add(new_enemy)
+            all_sprites.add(new_enemy)
+    
             
-            # Did the user click the window close button?
-            elif event.type == QUIT:
-                running = False
+        
 
     # Get the set of keys pressed and check for user input
     pressed_keys = pygame.key.get_pressed()
@@ -94,11 +156,22 @@ while running:
     # Update the player position based on user keypresses
     player.update(pressed_keys)
 
+    # Update enemey position each frame
+    enemies.update()
+    torpedos.update()
+
     # Fill the screen with color
     screen.fill((255,255,255))
 
-    # Draw the player
-    screen.blit(player.surf, player.rect)
+    # Draw all the sprites
+    for sprite in all_sprites:
+        screen.blit(sprite.surf, sprite.rect)
+
+    # Check if an enemy collides with player
+    if pygame.sprite.spritecollideany(player, enemies):
+        # If so, remove the player and stop the game loop
+        player.kill()
+        running = False
 
     # Update the display
     pygame.display.flip()
