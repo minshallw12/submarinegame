@@ -44,8 +44,8 @@ class Sky:
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
-        self.surf = pygame.Surface((40,10))
-        self.surf.fill((0, 0, 0))
+        self.surf = pygame.image.load("./sprites/submarinewindowless.png").convert_alpha()
+        self.surf.set_colorkey((0, 0, 0), RLEACCEL)
         self.rect = self.surf.get_rect()
 
     # Move the sprite based on user keypresses
@@ -74,8 +74,8 @@ class Player(pygame.sprite.Sprite):
 class Torpedo(pygame.sprite.Sprite):
     def __init__(self, initial_position):
         super(Torpedo, self).__init__()
-        self.surf = pygame.Surface((20,10))
-        self.surf.fill((50, 10, 200))
+        self.surf = pygame.image.load("./sprites/spr_missile2.png").convert_alpha()
+        self.surf.set_colorkey((0, 0, 0), RLEACCEL)
         self.rect = self.surf.get_rect(center = initial_position)
         self.speed = 10
     
@@ -89,8 +89,8 @@ class Torpedo(pygame.sprite.Sprite):
 class EnemyTorp(pygame.sprite.Sprite):
     def __init__(self):
         super(EnemyTorp, self).__init__()
-        self.surf = pygame.Surface((20,10))
-        self.surf.fill((0, 0, 0))
+        self.surf = pygame.image.load("./sprites/spr_missile1.png").convert_alpha()
+        self.surf.set_colorkey((0, 0, 0), RLEACCEL)
         self.rect = self.surf.get_rect(
             center = (
                 random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100),
@@ -107,12 +107,12 @@ class EnemyTorp(pygame.sprite.Sprite):
 class Destroyer(pygame.sprite.Sprite):
     def __init__(self):
         super(Destroyer, self).__init__()
-        self.surf = pygame.Surface((50,20))
-        self.surf.fill((0, 0, 0))
+        self.surf = pygame.image.load("./sprites/ship1.png").convert_alpha()
+        self.surf.set_colorkey((0, 0, 0), RLEACCEL)
         self.rect = self.surf.get_rect(
             center = (
                 random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100),
-                95
+                70
             )
         )
         self.speed = random.randint(1, 3)
@@ -126,14 +126,14 @@ class Destroyer(pygame.sprite.Sprite):
 class Depth_Charge(pygame.sprite.Sprite):
     def __init__(self, initial_position):
         super(Depth_Charge, self).__init__()
-        self.surf = pygame.Surface((10,10))
-        self.surf.fill((50, 10, 200))
+        self.surf = pygame.image.load("./sprites/depth_charge2.png").convert_alpha()
+        self.surf.set_colorkey((0, 0, 0), RLEACCEL)
         self.rect = self.surf.get_rect(center = initial_position)
         self.speed = random.randint(1,3)
     
     def update(self):
         self.rect.move_ip(0, self.speed)
-        if self.rect.top > 940:
+        if self.rect.top > 750:
             self.kill()
 
 # Initialize pygame
@@ -214,7 +214,6 @@ while running:
                     new_depth_charge = Depth_Charge(destroyer.rect.center)
                     depth_charges.add(new_depth_charge)
                     all_sprites.add(new_depth_charge)
-                    # Update the last drop time for the destroyer
                     destroyer.last_drop_time = pygame.time.get_ticks()
 
         
@@ -243,7 +242,7 @@ while running:
         screen.blit(sprite.surf, sprite.rect)
 
     # Check if an enemy collides with player
-    if pygame.sprite.spritecollideany(player, enemy_torps) or pygame.sprite.spritecollideany(player, destroyers):
+    if pygame.sprite.spritecollideany(player, enemy_torps) or pygame.sprite.spritecollideany(player, destroyers) or pygame.sprite.spritecollideany(player, depth_charges):
         # If so, remove the player and stop the game loop
         player.kill()
         running = False
