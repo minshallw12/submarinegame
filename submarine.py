@@ -28,18 +28,28 @@ SKY_HEIGHT = 100
 
 # Define a Player object by extending pygame.sprite.Sprite
 # The surface drawn on the screen is now an attribute of 'player'
-class Sand:
+class Sand(pygame.sprite.Sprite):
     def __init__(self):
+        super(Sand, self).__init__()
         self.surf = pygame.Surface((SCREEN_WIDTH, SAND_HEIGHT))
         self.surf.fill("#b59438")
         self.rect = self.surf.get_rect(bottom=SCREEN_HEIGHT)
 
-class Sky:
+class Sky(pygame.sprite.Sprite):
     def __init__(self):
+        super(Sky, self).__init__()
         self.surf = pygame.Surface((SCREEN_WIDTH, SKY_HEIGHT))
         self.surf.fill("#7aa7eb")
         self.rect = self.surf.get_rect()
 
+OBJECT_HEIGHT = 50
+OBJECT_WIDTH = 50
+class Sticker(pygame.sprite.Sprite):
+    def __init__(self, position):
+        super(Sticker, self).__init__()
+        self.surf = pygame.Surface((OBJECT_WIDTH, OBJECT_HEIGHT))
+        self.surf.fill((255,255,255))
+        self.rect = self.surf.get_rect(bottom = position[0], left = position[1])
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -64,8 +74,8 @@ class Player(pygame.sprite.Sprite):
             self.rect.left = 0
         if self.rect.right > SCREEN_WIDTH:
             self.rect.right = SCREEN_WIDTH    
-        if self.rect.top <= 95:
-            self.rect.top = 95
+        if self.rect.top <= 85:
+            self.rect.top = 85
         if self.rect.bottom >= SCREEN_HEIGHT - 60:
             self.rect.bottom = SCREEN_HEIGHT - 60
 
@@ -156,6 +166,10 @@ pygame.time.set_timer(ADDDEPTH_CHARGE, random.randint(500, 3000))
 player = Player()
 sky = Sky()
 sand = Sand()
+# pass coordinates in list [x,y]
+cloud = Sticker([65, SCREEN_WIDTH-200])
+cloud2 = Sticker([60, 300])
+rock = Sticker([SCREEN_HEIGHT-40, SCREEN_WIDTH-500])
 
 # Create groups to hold enemy sprites and all sprites
 # - enemies is used for collision detection and position updates
@@ -164,6 +178,7 @@ enemy_torps = pygame.sprite.Group()
 destroyers = pygame.sprite.Group()
 depth_charges = pygame.sprite.Group()
 torpedos = pygame.sprite.Group()
+decor = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 
@@ -177,6 +192,8 @@ clock = pygame.time.Clock()
 
 # Main game loop
 while running:
+    
+    decor.add(sky, sand, cloud, cloud2, rock)
     # Look for every event in the queue
     for event in pygame.event.get():
         # Did the user pres down a key?
@@ -233,9 +250,14 @@ while running:
     # Fill the screen with color
     screen.fill("#0f3573")
 
-    # Draw sky and sand
-    screen.blit(sky.surf, sky.rect)
-    screen.blit(sand.surf, sand.rect)
+    # Draw sky, sand, and clouds
+    for sprite in decor:
+        screen.blit(sprite.surf, sprite.rect)
+    # screen.blit(sky.surf, sky.rect)
+    # screen.blit(sand.surf, sand.rect)
+    # screen.blit(cloud.surf, cloud.rect)
+    # screen.blit(cloud2.surf, cloud2.rect)
+    # screen.blit(rock.surf, rock.rect)
 
     # Draw all the sprites
     for sprite in all_sprites:
