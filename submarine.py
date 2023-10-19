@@ -1,5 +1,7 @@
 # Import game module and random numbers
 import pygame
+import pygame.freetype
+import os
 import random
 
 # Import pygmae.locals for easeier aces to key coordinates
@@ -20,19 +22,33 @@ from pygame.locals import (
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 800
 
+# Create the screen object
+# The size is determined by the constant SCREEN_WIDTH and SCREEN_HEIGHT
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
 # Define the height of the sand
 SAND_HEIGHT = 60
 
 # Define the height of the sky
 SKY_HEIGHT = 100
 
+#Creat a font path
+font_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fonts", "dogicapixelbold.ttf")
+font_size = 64
+pygame.freetype.init()
+myfont = pygame.freetype.Font(font_path, font_size)
+
 # Define a Player object by extending pygame.sprite.Sprite
 # The surface drawn on the screen is now an attribute of 'player'
+def stats(score):
+    myfont.render_to(screen, (4, 4), "Score:"+str(score), (80, 80, 155), None, size=15)
+
+
 class Sand(pygame.sprite.Sprite):
     def __init__(self):
         super(Sand, self).__init__()
         self.surf = pygame.Surface((SCREEN_WIDTH, SAND_HEIGHT))
-        self.surf.fill("#d9d296")
+        self.surf.fill("#d4cb7d")
         self.rect = self.surf.get_rect(bottom=SCREEN_HEIGHT)
 
 class Sky(pygame.sprite.Sprite):
@@ -57,6 +73,7 @@ class Player(pygame.sprite.Sprite):
         self.surf = pygame.image.load("./sprites/submarinewindowless.png").convert_alpha()
         self.surf.set_colorkey((0, 0, 0), RLEACCEL)
         self.rect = self.surf.get_rect()
+        self.score = 0
 
     # Move the sprite based on user keypresses
     def update(self, pressed_keys):
@@ -149,9 +166,6 @@ class Depth_Charge(pygame.sprite.Sprite):
 # Initialize pygame
 pygame.init()
 
-# Create the screen object
-# The size is determined by the constant SCREEN_WIDTH and SCREEN_HEIGHT
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # Create a custom event for adding a new enemy
 ADDENEMYTORP = pygame.USEREVENT + 1
@@ -274,13 +288,17 @@ while running:
     # If there are collisions, remove the torpedo and enemy
     for torpedo, enemy_torp in enemy_torp_collisions.items():
         torpedo.kill()
+        player.score += 1
         for e in enemy_torp:
             e.kill()
     for torpedo, destroyer in destroyer_collisions.items():
         torpedo.kill()
+        player.score += 2
         for e in destroyer:
             e.kill()
 
+
+    stats(player.score)
     # Update the display
     pygame.display.flip()
 
