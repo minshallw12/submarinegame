@@ -45,10 +45,10 @@ class Sky(pygame.sprite.Sprite):
 OBJECT_HEIGHT = 50
 OBJECT_WIDTH = 50
 class Sticker(pygame.sprite.Sprite):
-    def __init__(self, position):
+    def __init__(self, position, image_path):
         super(Sticker, self).__init__()
-        self.surf = pygame.Surface((OBJECT_WIDTH, OBJECT_HEIGHT))
-        self.surf.fill((255,255,255))
+        self.surf = pygame.image.load(image_path).convert_alpha()
+        self.surf.set_colorkey((0, 0, 0), RLEACCEL)
         self.rect = self.surf.get_rect(bottom = position[0], left = position[1])
 
 class Player(pygame.sprite.Sprite):
@@ -167,10 +167,10 @@ player = Player()
 sky = Sky()
 sand = Sand()
 # pass coordinates in list [x,y]
-cloud = Sticker([65, SCREEN_WIDTH-200])
-cloud2 = Sticker([60, 300])
-rock = Sticker([SCREEN_HEIGHT-40, SCREEN_WIDTH-500])
-chest = Sticker([SCREEN_HEIGHT-35, 70])
+cloud = Sticker([105, SCREEN_WIDTH-200], "./sprites/cloud22.png")
+cloud2 = Sticker([115, 300], "./sprites/cloud22.png")
+rock = Sticker([SCREEN_HEIGHT-40, SCREEN_WIDTH-500], "./sprites/4411.png")
+chest = Sticker([SCREEN_HEIGHT-35, 70], "./sprites/titanic.png")
 
 # Create groups to hold enemy sprites and all sprites
 # - enemies is used for collision detection and position updates
