@@ -32,7 +32,7 @@ class Sand(pygame.sprite.Sprite):
     def __init__(self):
         super(Sand, self).__init__()
         self.surf = pygame.Surface((SCREEN_WIDTH, SAND_HEIGHT))
-        self.surf.fill("#b59438")
+        self.surf.fill("#d9d296")
         self.rect = self.surf.get_rect(bottom=SCREEN_HEIGHT)
 
 class Sky(pygame.sprite.Sprite):
@@ -170,7 +170,7 @@ sand = Sand()
 cloud = Sticker([105, SCREEN_WIDTH-200], "./sprites/cloud22.png")
 cloud2 = Sticker([115, 300], "./sprites/cloud22.png")
 rock = Sticker([SCREEN_HEIGHT-40, SCREEN_WIDTH-500], "./sprites/4411.png")
-chest = Sticker([SCREEN_HEIGHT-35, 70], "./sprites/titanic.png")
+chest = Sticker([SCREEN_HEIGHT-35, 70], "./sprites/titanic2.png")
 
 # Create groups to hold enemy sprites and all sprites
 # - enemies is used for collision detection and position updates
