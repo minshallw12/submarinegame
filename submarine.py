@@ -170,6 +170,7 @@ sand = Sand()
 cloud = Sticker([65, SCREEN_WIDTH-200])
 cloud2 = Sticker([60, 300])
 rock = Sticker([SCREEN_HEIGHT-40, SCREEN_WIDTH-500])
+chest = Sticker([SCREEN_HEIGHT-35, 70])
 
 # Create groups to hold enemy sprites and all sprites
 # - enemies is used for collision detection and position updates
@@ -193,7 +194,9 @@ clock = pygame.time.Clock()
 # Main game loop
 while running:
     
-    decor.add(sky, sand, cloud, cloud2, rock)
+    # Add the decor sprites to decor group to be rendered
+    decor.add(sky, sand, cloud, cloud2, rock, chest)
+
     # Look for every event in the queue
     for event in pygame.event.get():
         # Did the user pres down a key?
@@ -250,14 +253,9 @@ while running:
     # Fill the screen with color
     screen.fill("#0f3573")
 
-    # Draw sky, sand, and clouds
+    # Draw sky, sand, clouds, rock, chest
     for sprite in decor:
         screen.blit(sprite.surf, sprite.rect)
-    # screen.blit(sky.surf, sky.rect)
-    # screen.blit(sand.surf, sand.rect)
-    # screen.blit(cloud.surf, cloud.rect)
-    # screen.blit(cloud2.surf, cloud2.rect)
-    # screen.blit(rock.surf, rock.rect)
 
     # Draw all the sprites
     for sprite in all_sprites:
